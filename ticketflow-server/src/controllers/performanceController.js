@@ -3,13 +3,16 @@ const supabase = require("../lib/supabase");
 // [과제 1] 공연 목록 조회
 async function getPerformances(req, res, next) {
   try {
-    // TODO 1-1. performances 테이블에서 모든 데이터 조회
-    // TODO 1-2. id 기준 오름차순 정렬
-    // TODO 1-3. 조회 결과를 JSON으로 응답
+    const { data, error } = await supabase
+      .from("performances")
+      .select("*")
+      .order("id", { ascending: true });
 
-    return res.status(501).json({
-      error: "공연 목록 조회 기능을 구현해 주세요.",
-    });
+    if (error) {
+      throw error;
+    }
+
+    return res.status(200).json(data ?? []);
   } catch (error) {
     next(error);
   }
