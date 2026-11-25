@@ -143,13 +143,27 @@ async function updatePerformance(req, res, next) {
 // [과제 4] 공연 삭제
 async function deletePerformance(req, res, next) {
   try {
-    // TODO 4-1. 요청 URL에서 id 가져오기
-    // TODO 4-2. Supabase 데이터 삭제
-    // TODO 4-3. 삭제 결과 반환
+    const { id } = req.params;
+    const performanceId = Number(id);
+    if (!/^\d+$/.test(id) || !Number.isSafeInteger(performanceId) || performanceId <= 0) {
+      return res.status(400).json({ error: "공연 ID는 양의 정수여야 합니다." });
+    }
 
-    return res.status(501).json({
-      error: "공연 삭제 기능을 구현해 주세요.",
-    });
+    const { data, error } = await supabase
+      .from("performances")
+      .delete()
+      .eq("id", performanceId)
+      .select()
+      .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+    if (!data) {
+      return res.status(404).json({ error: "공연을 찾을 수 없습니다." });
+    }
+
+    return res.status(200).json({ message: "공연 삭제 완료" });
   } catch (error) {
     next(error);
   }
